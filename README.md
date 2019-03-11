@@ -1,40 +1,103 @@
 # Istio and OpenCensus 101 - Lightning Demo
 
-This is the code I use for my Istio 101 talk and Istio and OpenCensus talk. Please take a look! I assume some prior knowledge of Kubernetes, but it's not totally required.
+Thanks to Sandeep Dinesh for the original content. This is forked from his repo: thesandlord/Istio101 and modified to run on Azure Kubernetes Services. 
 
-Talk Video:
+
+I assume some prior knowledge of Kubernetes.
+
+Original Talk Video:
 [![Talk YouTube Link](https://i.ytimg.com/vi/8OjOGJKM98o/maxresdefault.jpg)](https://www.youtube.com/watch?v=8OjOGJKM98o)
 
-
-Want to get started with one click? Open this repo in Cloud Shell. It's free and has everything you need to get started.
-
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fthesandlord%2FIstio101&cloudshell_tutorial=README.md)
-
-# TL;DR - I want to skip setup
-
-Run this:
-
-`make create-cluster deploy-istio build push deploy-stuff`
-
-Run this in another terminal:
-
-`make start-monitoring-services`
-
 ## Cluster Setup
-You need a Kubernetes 1.10 or newer cluster.
+You need a Kubernetes 1.12 or newer cluster.
 
-You will also need Docker and kubectl 1.9.x or newer installed on your machine, as well as the Google Cloud SDK. You can install the Google Cloud SDK (which will also install kubectl) [here](https://cloud.google.com/sdk).
+You will also need Docker and kubectl 1.9.x or newer installed on your machine, as well as the Azure CLI. You can install the Azure CLI from here.
 
-To create the cluster with Google Kubernetes Engine, run this command:
+1. In your Azure Cloud Shell session, make sure that you're using the right Azure subscription
 
-`make create-cluster`
+2. Select the subscription where you want to create the AKS cluster
+   ```
+   az account set --subscription xxxx-925a-440b-84b1-xxxxxxx
+   ```
+3. Verify your subscription is correctly selected as the default
+    ```
+    az account list
+    ```
 
-This will create a cluster called "my-istio-cluster" with 4 nodes in the us-west1-b region. This will deploy into the current active project set in your Google Cloud SDK. You can change this by passing in a custom value for the Project ID and/or Zone.
+4. Create a new resource group (eg: myaksrg)
+    ```
+    az group create --name aks-istio-rg --location eastus
+    ```
 
-`make create-cluster PROJECT_ID=your-custom-id-here ZONE=your-custom-zone`
+5. Find your RG name
+
+    ```
+    az group list 
+    ```
+    
+    ```
+
+    [
+    {
+      "id": "/subscriptions/c45eeda7-1811-4ab1-8fe2-efdd99c9d489/resourceGroups/myaksrg",
+      "location": "eastus",
+      "managedBy": null,
+      "name": "aks-istio-rg",
+      "properties": {
+        "provisioningState": "Succeeded"
+      },
+      "tags": null
+    }
+    ]
+    ```
+    
+    ```
+    # copy the name from the results above and set to a variable 
+    
+    NAME=
+
+    # We need to use a different cluster name, as sometimes the name in the group list has an underscore, and only dashes are permitted
+    
+    CLUSTER_NAME="aks-istio-cluster"
+    
+    ```
+
+6. Create your AKS cluster in the resource group created above with 2 nodes, targeting Kubernetes version 1.11.7
+    ```
+    # set the location to one of the provided AKS locations (eg - centralus, eastus)
+    
+    LOCATION=eastus
+
+    az aks create --name aks-istio-cluster --resource-group $NAME --node-count 2 \
+                  --kubernetes-version 1.11.7 --generate-ssh-keys --location $LOCATION 
+    ```
+ This command can take 5-10 minutes to run as it is creating the AKS cluster. Please be PATIENT...
+
+9. Verify your cluster status. The `ProvisioningState` should be `Succeeded`. 
+
+    ```bash
+    az aks list --output table
+    ```
+    
+    ```console
+    Name      Location    ResourceGroup    KubernetesVersion    ProvisioningState    Fqdn
+    --------  ----------  ---------------  -------------------  -------------------  ---------------------------------------------------    ---
+    aks-istio-cluster   eastus      aks-istio-rg          1.11.7                Succeeded            aks-istio-rg-aks-istio-cluster-9a4f9a-7a0ba239.hcp.eastus.azmk8s.io
+
+    ```
+
+The `output` parameter is used display the output as a table to increase readability.
+
+To create the cluster with Azure Kubernetes Engine, run this command:
+
+
+``
+
+This will create a cluster called "aks-istio-cluster" with 2 nodes in the eastus region.
+
 
 ## Istio Setup
-This project assumes you are running on x64 Linux. If you are running on another platform, I highly reccomend using [Google Cloud Shell](https://cloud.google.com/shell) to get a free x64 Linux environment.
+This project assumes you are running on x64 Linux. If you are running on another platform, I highly recommend using [Azure Cloud Shell](https://shell.azure.com) to get a free x64 Linux environment.
 
 To deploy Istio into the cluster, run
 
