@@ -1,3 +1,6 @@
+## UNDER CONSTRUCTION - This document is under construction and is not fully updated. There are some steps missing currently. Follow this only if you are familiar with K8s/AKS and if you know what you are doing - Deepu
+
+
 # Istio and OpenCensus 101 - Lightning Demo
 
 Thanks to Sandeep Dinesh for the original content. This is forked from his repo: thesandlord/Istio101 and modified to run on Azure Kubernetes Services. 
@@ -6,10 +9,10 @@ Thanks to Sandeep Dinesh for the original content. This is forked from his repo:
 I assume some prior knowledge of Kubernetes.
 
 Original Talk Video:
-[![Talk YouTube Link](https://i.ytimg.com/vi/8OjOGJKM98o/maxresdefault.jpg)](https://www.youtube.com/watch?v=8OjOGJKM98o)
+[![YouTube Link]](https://www.youtube.com/watch?v=8OjOGJKM98o)
 
 ## Cluster Setup
-You need a Kubernetes 1.12 or newer cluster.
+You need a Kubernetes 1.11 or newer cluster.
 
 You will also need Docker and kubectl 1.9.x or newer installed on your machine, as well as the Azure CLI. You can install the Azure CLI from here.
 
@@ -113,7 +116,7 @@ Run this in another terminal:
 
 This will create tunnels into your Kubernetes cluster for [Jaeger](http://localhost:16686), [Servicegraph](http://localhost:8088), and [Grafana](http://localhost:3000). This command will not exit as it keeps the connection open.
 
-## Create Docker Container
+## Create Docker Container (To be updated)
 
 To build and push the code, run:
 
@@ -127,7 +130,7 @@ Again, you can pass in a custom project ID, but make sure it is the same as befo
 
 *Note:* This will build three containers, one for the vanilla Istio demo, and two for the OpenCensus demo.
 
-## Deploy Kubernetes Services
+## Deploy Kubernetes Services (Yaml to be updated)
 
 This will create the three Deployments and the three Services.
 
